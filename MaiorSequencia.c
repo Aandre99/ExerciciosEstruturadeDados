@@ -60,7 +60,6 @@ void PritList(List *list)
 	while(aux!= NULL)
 	{
 		aux2 = aux;
-		//printf("%c ", aux->zero_one);
 		aux = aux->next;
 		free(aux2);
 	}
@@ -68,28 +67,31 @@ void PritList(List *list)
 }
 void Big_Sequence(List *list, int *inicio, int *fim, int size)
 {
-	int i,temp=0, diff=0, big = 0;
+	int i,in=0,fm=0, diff=0, big = 0;
 	node *aux = list->head, *aux2=NULL;
 
 	for(i = aux->index;aux->next != NULL;aux = aux->next)
 	{
 
-		if(aux->zero_one == '0')
+		if(aux->zero_one == '0' && aux->next->zero_one)
 		{
-			temp = aux->index;
 			aux2 = aux->next;
 
 			while(aux2->zero_one == '0')
 			{
-				*fim = M(*fim,aux2->index);
+				fm = M(fm,aux2->index);
 				diff++;
 				aux2 = aux2->next;
 			}
-			big = M(big,diff);
+
+			if( diff > big){
+				*fim = fm;
+				*inicio = *fim - diff;
+			}
+			big = M(big,diff); 
 			diff = 0;
 		}
 	}
-	*inicio = *fim - big;
 }
 int main()
 {
