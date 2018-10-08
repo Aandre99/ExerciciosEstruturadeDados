@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void Print(int *v, int t, int T)
+{
+  int i;
+  for(i=t;i<T;i++)
+  {
+    printf("%d ", v[i]);
+  }
+  printf("\n");
+}
+
+int BinarySearch(int *v, int tam, int valor)
+{
+  int inicio = 0, fim = tam-1;
+  int meio = 0;
+
+  while(inicio <= fim)
+  {
+
+    meio = (inicio+fim)/2;
+
+    if(valor < v[meio]){
+      fim = meio-1;
+    }
+    else if(valor > v[meio]){
+      inicio = meio+1;
+    }else{
+      return meio;
+    }
+  }
+  return -1;
+}
+
+int Search(int *v, int tam, int valor)
+{
+  int i;
+
+  for(i = 0;i<tam;i++)
+  {
+
+    if(v[i] == valor)
+      return i;
+  }
+  return -1;
+}
+int main()
+{
+  int v[] ={4,12,94,300,540};
+
+  printf("%d\n", BinarySearch(v,7,540));
+  printf("%d", Search(v,7,540));
+
+  return 0;
+}
