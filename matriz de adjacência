@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int l, c, i=1;
+
+typedef struct node
+{
+	int num;
+	struct node *next;
+}node;
+
+typedef struct queue
+{
+	node *head;
+	node *tail;
+}Queue;
+
+Queue *CreateQueue()
+{
+	Queue *new = (Queue*)malloc(sizeof(Queue));
+	if(new == NULL){
+		puts("ERROR");
+		exit(1);
+	}
+	new->head = NULL;
+	new->tail = NULL;
+	return new;
+}
+void Enqueue(Queue *Q, int info)
+{
+	node *newnode = (node*)malloc(sizeof(node));
+	if(newnode == NULL){
+		puts("ERROR");
+		exit(1);
+	}
+
+	newnode->num = info;
+
+	if(Q->head == NULL){
+		Q->head = newnode;
+	}else{
+		Q->tail->next = newnode;
+	}
+	Q->tail = newnode;
+}
+
+int Dequeue(Queue *Q)
+{
+	if(Q->head == NULL){
+		exit(1);
+	}
+	else{
+
+		node *aux = Q->head;
+		int x = aux->num;
+		Q->head = aux->next;
+
+		if(Q->head == NULL){
+			Q->tail = NULL;
+			Q->head = NULL;
+		}
+
+		free(aux);
+		return x;
+	}
+}
+void PrintQueue(Queue *Q)
+{
+	node *aux = Q->head;
+	while(aux != NULL)
+	{
+		printf("%d ", aux->num);
+		aux = aux->next;
+	}
+}
+
+void Busca(int GRAPH[][7], Queue *Q, int *C, int *S, int first, int last)
+{
+	if(first == last){
+		for(l=0;l<7;l++){
+			printf("%d \n", S[l]);
+		}
+		return;
+	}
+		else{
+
+			while(i < 7)
+			{
+				if(GRAPH[first][i] && C[i] == 0){
+					C[i] = 1;
+					S[i] = i;
+					Enqueue(Q, i);
+					Busca(GRAPH, Q, C,S, Dequeue(Q), last);
+				}
+				++i;
+			}
+	}
+
+}
+int main()
+{
+	Queue *Q = CreateQueue();
+
+	int GRAPH[7][7] = 
+	{
+		0 , 1 , 2 , 3 , 4 , 5 , 6,
+		1 , 0 , 1 , 0 , 1 , 0 , 0,
+		2 , 0 , 0 , 0 , 0 , 0 , 1,
+		3 ,	0 , 0 , 0 , 0 , 1 , 1,
+		4 , 0 , 1 , 1 , 0 , 0 , 0,
+		5 , 0 , 0 , 0 , 0 , 0 , 1,
+		6 , 0 , 0 , 0 , 0 , 0 , 0
+	};
+
+	int Check[7];
+	int Solution[7];
+	memset(Check,0,sizeof(Check));
+	memset(Solution,0,sizeof(Solution));
+	
+	Busca(GRAPH, Q, Check,Solution, 1,3);
+	return 0;
+}
