@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Arvore
+{
+  int item;
+  struct Arvore *dir;
+  struct Arvore *esq;
+}Arvore;
+
+Arvore* InserirArvBin(Arvore *arvore, int valor)
+{
+  if(arvore == NULL){
+    Arvore *new = (Arvore*)malloc(sizeof(Arvore));
+    new->item = valor;
+    return new;
+  }else{
+      
+      if(valor < arvore->item){
+        arvore->esq = InserirArvBin(arvore->esq, valor);
+      }else{
+        arvore->dir = InserirArvBin(arvore->dir, valor);
+      }
+      return arvore;
+  }
+}
+void PrintArvore(Arvore *arv)
+{
+    if(arv != NULL){
+        PrintArvore(arv->esq);
+        printf("%d ", arv->item);
+        PrintArvore(arv->dir);
+    }
+}
+int Procura(Arvore *arv, int elemento)
+{
+  if(arv == NULL){
+    return 0;
+  }
+  else if(arv->item == elemento){
+    return 1;
+  }
+  else if (elemento < arv->item){
+
+    Procura(arv->esq, elemento);
+  }else{
+    Procura(arv->dir, elemento);
+  }
+}
+
+void Eh_Folha(Arvore *arv)
+{
+  if((arv != NULL) && (arv->esq == NULL) && (arv->dir == NULL)){
+    printf("%d e folha\n", arv->item);
+     return;
+  }
+  else if((arv != NULL) && (arv->esq == NULL) && (arv->dir != NULL)){
+      Eh_Folha(arv->dir);
+     }
+  else if((arv != NULL) && (arv->dir == NULL) && (arv->esq != NULL)){
+        Eh_Folha(arv->esq);
+      }
+  else
+  {
+      Eh_Folha(arv->esq);
+      Eh_Folha(arv->dir);
+    }
+    return; 
+}
+int main()
+{
+  Arvore *Arvore = NULL;
+
+  Arvore = InserirArvBin(Arvore, 7);
+  Arvore = InserirArvBin(Arvore, 10);
+  Arvore = InserirArvBin(Arvore, 5);
+  Arvore = InserirArvBin(Arvore, 6);
+   Arvore = InserirArvBin(Arvore, 4);
+  Arvore = InserirArvBin(Arvore, 65);
+  Arvore = InserirArvBin(Arvore, 17);
+  Arvore = InserirArvBin(Arvore, 100);
+
+ /* if(Procura(Arvore, 100) == 1){
+    puts("Pertence");
+  }else{
+    puts("Nao Pertence");
+  }*/
+  Eh_Folha(Arvore);
+  return 0;
+}
