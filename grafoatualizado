@@ -1,0 +1,247 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+typedef struct grafo
+{
+	int **Adj;
+	int n_vertices;
+}Grafo;
+
+typedef struct x
+{
+	int info;
+	struct x* prox;
+}no;
+
+typedef struct y
+{
+	no* cabeca;
+	no* calda;
+}Fila;
+
+Fila* CriaFila()
+{
+	Fila* F = (Fila*)malloc(sizeof(Fila));
+	if(F == NULL)
+	{
+		puts("Erro ao criar a Fila");
+		exit(1);
+	}
+	F->cabeca = NULL;
+	F->calda = NULL;
+	
+	return F;
+}
+int FilaVazia(Fila* F)
+{
+	return (F->cabeca == NULL);
+}
+void Enqueue(Fila* F, int dado)
+{
+	no* novo = (no*)malloc(sizeof(no));
+	if(novo == NULL)
+	{
+		puts("Erro ao criar a Fila");
+		exit(1);
+	}
+	novo->info = dado;
+	novo->prox = NULL;
+	
+	if(FilaVazia(F)){
+		F->cabeca = novo;
+		F->calda = novo;
+	}else{
+		F->calda->prox = novo;
+	}
+	F->calda = novo;
+}
+int Dequeue(Fila* F)
+{
+	if(FilaVazia(F)){
+		puts("Fila Vazia");
+		exit(1);
+	}
+	int x = F->cabeca->info;
+	no *aux = F->cabeca;
+	F->cabeca = aux->prox;
+	
+	if(aux->prox == NULL)F->calda = NULL;
+ 	 free(aux);
+  
+  	  return x;
+}
+Grafo* Criar(int n_v)
+{
+	Grafo *G = (Grafo*)malloc(sizeof(Grafo));
+
+	G->n_vertices = n_v;
+
+	G->Adj = (int **)malloc(n_v * sizeof(int*));
+	int i, j;
+
+	for(i=0;i<n_v;i++)
+	{
+		G->Adj[i] = (int*)malloc(n_v * sizeof(int));
+	}
+
+	for(i=0;i<n_v;i++)
+	{
+		for(j=0;j<n_v;j++)
+		{
+			G->Adj[i][j] = 0;
+		}
+	}
+
+	return G;
+
+}
+void printvetor(int *s, int n)
+{
+	int i;
+	for(i=0;i<=n;i++)
+	{
+		if(s[i] != 0){
+			printf("%d ", s[i]);
+		}
+	}
+	printf("\n");
+}
+void Print_Grafo(Grafo *G, int n_v)
+{
+	int i, j;
+
+	for(i=0;i<n_v;i++)
+	{
+		for(j=0;j<n_v;j++)
+		{
+			printf("%d ", G->Adj[i][j]);
+		}
+		printf("\n");
+	}
+}
+void InserirAresta(Grafo *grafo, int ver1, int ver2)
+{
+	grafo->Adj[ver1][ver2] = 1;
+}
+
+int Marcado(int *s, int v, int n)
+{
+	int i;
+	for(i=0;i<n;i++)
+	{
+		if(s[i] == v){
+			return 1;
+		}
+	}
+	return 0;
+}
+void LiberaGrafo(Grafo *g, int tam)
+{
+	int i;
+
+	for(i=0;i<tam;i++)
+	{
+		free(g->Adj[i]);
+	}
+	free(g->Adj);
+	free(g);
+}
+
+void BFS(Grafo *g, Fila *F, int inicio, int fim , int *vis, int tam)
+{
+	vis[0] = inicio;
+
+	Enqueue(F ,inicio);
+	int aux = 0, i, cont=1;
+
+	while(!FilaVazia(F))
+	{
+		aux  = Dequeue(F);
+
+		if(aux == fim){
+			break;
+		}
+
+		for(i = 1;i<tam;i++)
+		{
+			if(g->Adj[aux][i] && !Marcado(vis,i,tam))
+			{
+				Enqueue(F, i);
+				vis[cont++] = i;
+			}
+		}
+	}
+	printvetor(vis, cont);
+}
+
+void DFS(Grafo *g, int *s, int inicio, int fim, int tam, int cont)
+{
+	s[cont] = inicio;
+
+	if(inicio == fim){
+		printvetor(s, cont);
+		return;
+	}else{
+
+		int i;
+		for(i=1;i<tam;i++)
+		{
+			if(g->Adj[inicio][i] && !Marcado(s,i,cont))
+			{
+				DFS(g, s , i, fim, tam, cont+1);
+			}
+		}
+	}
+}
+int E_completo(Grafo *g, int tam)
+{
+	int i, j;
+	for(i=1;i<tam;i++)
+	{
+		for(j = 1;j<tam;j++)
+		{
+			if(i != j && !g->Adj[i][j])
+			{
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+int main()
+{
+	int n, cont=0;
+	scanf("%d", &n);
+	++n;
+
+	//Fila * F = CriaFila();
+	Grafo *grafo = Criar(n);
+	int i, v1, v2, o, d;
+	int s[n];
+
+	for(i=1;i<n;i++)
+	{
+		grafo->Adj[i][0] = i;
+		grafo->Adj[0][i] = i;
+
+		s[i] = 0;
+
+	}
+	for(i=0;;i++)
+	{
+		scanf("%d%d", &v1, &v2);
+		if(v1 == -1){break;}
+		InserirAresta(grafo, v1,v2);
+	}
+	//scanf("%d%d", &o, &d);
+	//BFS(grafo, F, o, d, s, n);
+	//DFS(grafo, s, o, d, n, 0);
+	Print_Grafo(grafo, n);
+
+	printf("%d", E_completo(grafo, n));
+
+	LiberaGrafo(grafo, n);
+	return 0;
+}
