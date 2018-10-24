@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct sub_tree
+{
+	int info;
+	struct sub_tree *left;
+	struct sub_tree *right;
+}sub_tree;
+
+typedef struct tree
+{
+	sub_tree *Root;
+}Tree;
+
+Tree *Create_Binary_Tree()
+{
+	Tree * Bt = (Tree*)malloc(sizeof(Tree));
+	if(Bt == NULL){
+		puts("Erro na alocacao da arvore, fechando o programa!");
+		exit(1);
+	}
+	Bt->Root = NULL;
+	return Bt;
+}
+
+sub_tree * create_sub_tree(int info)
+{
+	sub_tree *new_sub_tree = (sub_tree*)malloc(sizeof(sub_tree));
+		if(new_sub_tree == NULL){
+		puts("Erro na alocacao do no, fechando o programa!");
+		exit(1);
+	}
+	new_sub_tree->info = info;
+	new_sub_tree->left = NULL;
+	new_sub_tree->right = NULL;
+	return new_sub_tree;
+}
+sub_tree *Inserte_Binary_Tree(sub_tree *root, int info)
+{
+	if(root == NULL){
+		sub_tree *new_sub_tree = create_sub_tree(info);
+		return new_sub_tree;
+	}else{
+		if(info > root->info){
+			root->right = Inserte_Binary_Tree(root->right, info);
+		}else{
+			root->left = Inserte_Binary_Tree(root->left, info);
+		}
+	}
+}
+void Print_Tree(sub_tree *root)
+{
+	if(root == NULL){
+		return;
+	}
+	else{
+
+		Print_Tree(root->left);
+		printf("%d ", root->info);
+		Print_Tree(root->right);
+	}
+}
+
+void Print_Sheet(sub_tree *tree)
+{
+	if(tree == NULL){
+		return;
+	}
+	if(tree->left == NULL && tree->right == NULL){
+		printf("E' folha %d\n", tree->info);
+	}else{
+		Print_Sheet(tree->left);
+		Print_Sheet(tree->right);
+	}
+}
+void Is_Intermed(Tree *Bt, sub_tree *root)
+{
+	if (root == NULL){
+		return;
+	}
+	else{
+		
+		if(root->left != root->right){
+			if(root != Bt->Root)
+			printf("E' intermediario: %d\n", root->info);
+		}
+		Is_Intermed(Bt,root->left);
+		Is_Intermed(Bt,root->right);	
+	}
+}
+int main()
+{
+	Tree * tree = Create_Binary_Tree();
+	tree->Root = Inserte_Binary_Tree(tree->Root, 10);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 4);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 12);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 5);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 80);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 11);
+	tree->Root = Inserte_Binary_Tree(tree->Root, -20);
+	tree->Root = Inserte_Binary_Tree(tree->Root, 100);
+
+	//Print_Tree(tree->Root);
+	Print_Sheet(tree->Root);
+	printf("\n");
+	Is_Intermed(tree,tree->Root);
+	return 0;
+}
