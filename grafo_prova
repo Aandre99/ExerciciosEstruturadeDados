@@ -1,0 +1,227 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int check = 0;
+
+typedef struct graph
+{
+	int **Adj;
+	int size;
+}Graph;
+
+Graph *Create_Graph(int size)
+{
+	Graph *Gr = (Graph*)malloc(sizeof(Graph));
+	if(Gr == NULL){
+		puts("ERROR, CLOSING PROGRAM!");
+		exit(1);
+	}
+	Gr->size = size;
+	Gr->Adj = (int**)malloc(size*sizeof(int*));
+
+	if(Gr->Adj == NULL){
+		puts("ERROR, CLOSING PROGRAM!");
+		exit(1);
+	}
+	int i;
+	for(i=0;i<size;i++)
+	{
+		Gr->Adj[i] = (int*)calloc(size, sizeof(int));
+		if(Gr->Adj[i] == NULL){
+		puts("ERROR, CLOSING PROGRAM!");
+		exit(1);
+		}
+	}
+	
+	for(i=1;i<size;i++)
+	{
+		Gr->Adj[i][0] = i;
+		Gr->Adj[0][i] = i;
+	}
+
+	return Gr;
+}
+
+void Clear_Graph(Graph *Gr)
+{
+	int i;
+
+	for(i=0;i<Gr->size;i++)
+	{
+		free(Gr->Adj[i]);
+	}
+
+	free(Gr->Adj);
+	free(Gr);
+}
+void Print_Graph(Graph *Gr)
+{
+	int i, j;
+	for(i=0;i<Gr->size;i++)
+	{
+		for(j=0;j<Gr->size;j++)
+		{
+			printf("%d ", Gr->Adj[i][j]);
+		}
+		printf("\n");
+	}
+
+}
+void printvetor(int *s, int n)
+{
+	int i;
+	for(i=0;i<=n;i++)
+	{
+		if(s[i] != 0){
+			printf("%d ", s[i]);
+		}
+	}
+	printf("\n");
+}
+
+void Insert_Edge(Graph *Gr, int v1, int v2)
+{
+	Gr->Adj[v1][v2] = 1;
+}
+void Zero_Vector(int *s, int size)
+{
+	int i;
+	for(i=0;i<size+1;i++)
+	{
+		s[i] = 0; 
+	}
+}
+void Is_Sink(Graph *Gr, int *sink)
+{
+	int l, c, count=0;
+
+	for(l = 1 ; l < Gr->size ; l++)
+	{
+		for(c = 1 ; c < Gr->size ; c++)
+		{
+			if(!Gr->Adj[l][c]){
+				count++;
+			}
+		}	
+		if(count == Gr->size-1){
+			sink[l] = l; 
+		}
+		count = 0;
+	}
+}
+void Is_Source(Graph *Gr, int *answer)
+{
+	int l, c, count = 0;
+
+	for(c = 1 ; c < Gr->size ; c++)
+	{
+		for(l = 1 ; l < Gr->size ; l++)
+		{
+			if(!Gr->Adj[l][c]){
+				++count;
+			}
+		}
+		if(count == Gr->size-1){
+			answer[c] = c;
+		}
+		count = 0;
+	}
+}
+int Is_Full(Graph *Gr)
+{
+	int l, c;
+
+	for(l = 1 ; l < Gr->size ; l++)
+	{
+		for(c = 1 ; c < Gr->size ; c++)
+		{
+			if(Gr->Adj[l][l] != 0){
+				return 0;
+			}
+			if(Gr->Adj[l][c] == 0 && l != c){
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+int Marked(int *s, int v, int n)
+{
+	int i;
+	for(i=0;i<n;i++)
+	{
+		if(s[i] == v){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void Is_Way(Graph *Gr, int *s, int source, int destiny, int cont)
+{
+	s[cont] = source;
+
+	if(source == destiny){
+		check = 1;		
+		return;
+	}else{
+
+		int i;
+		for(i = 1; i < Gr->size ; i++){
+
+			if(Gr->Adj[source][i] && !Marked(s,i,cont)){
+				Is_Way(Gr, s , i, destiny,cont+1);
+			}
+		}
+	}
+}
+
+int main()
+{
+	int size, vertex1, vertex2, edges, origin, destiny;
+	printf("Informe quantos vertices e quantas arestas tera o grafo.\n");
+	scanf("%d%d", &size, &edges);
+	Graph *Gr = Create_Graph(size+1);
+	int aux[size];
+	Zero_Vector(aux, size);
+
+	printf("Informe as arestas para o grafo.\n");
+
+	while(edges > 0)
+	{
+		scanf("%d%d", &vertex1, &vertex2);
+		if((vertex1 < 1 || vertex1 > size) || (vertex1 < 1 || vertex1 > size)){
+			printf("Erro, vertice inválido\n");
+			break;
+		}
+		Insert_Edge(Gr, vertex1, vertex2);
+		--edges;
+	}
+
+Print_Graph(Gr);
+
+//-----------------Vertices sumidouros----------------------
+	printf("Os vertices sumidouros sao: ");
+	Is_Sink(Gr, aux);
+	printvetor(aux, size);
+	Zero_Vector(aux, size);
+	printvetor(aux, size);
+//-----------------Vertices font---------------------------
+
+	printf("Os vertices fontes sao: ");
+	Is_Source(Gr,aux);
+	printvetor(aux, size);
+	Zero_Vector(aux, size);
+//---------------------------------------------------------
+
+	//printf("%d\n", Is_Full(Gr));
+	printf("Indique o vertice inicial e o final:\n");
+	scanf("%d%d", &origin, &destiny);
+	Is_Way(Gr,aux ,origin, destiny,0);
+
+	printf("Existe caminho de %d para %d r : %s\n", origin, destiny, (check == 1) ? "sim":"nao");
+//------------Rotinas para liberar a memoria alocada-------
+
+	Clear_Graph(Gr);
+	return 0;
+}
